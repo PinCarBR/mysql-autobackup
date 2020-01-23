@@ -1,0 +1,15 @@
+version: "3"
+services:
+    mysql-autobackup:
+        build:
+            context: ./
+            args:
+                FREQUENCY: ${MYSQL_BKP_FREQUENCY}
+        image: mysql-autobkp:latest
+        container_name: mysql-autobackup
+        env_file: .env
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - ${MYSQL_BACKUP_LOCATION}:/opt/mysql/backup
+        command: crond -f -d 8
+        restart: always
