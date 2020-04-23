@@ -1,12 +1,12 @@
 version: "3"
 services:
-    mysql-autobackup:
+    mysql_autobackup:
         build:
             context: ./
             args:
                 FREQUENCY: ${MYSQL_BKP_FREQUENCY}
         image: mysql-autobkp:latest
-        container_name: mysql-autobackup
+        container_name: mysql_autobackup
         env_file: .env
         volumes:
             - /etc/localtime:/etc/localtime:ro
