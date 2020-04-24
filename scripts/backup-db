@@ -11,11 +11,14 @@ TAIL=$(which tail)
 XARGS=$(which xargs)
 RM=$(which rm)
 
-TAIL_SIZE=$(($MYSQL_BKP_HIST_SIZE+1))
+TAIL_SIZE=$(($MYSQL_BKP_HIST_SIZE+2))
 
 [ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
 
 FILE=$BACKUP_FOLDER/backup-$MYSQL_DATABASE-$NOW.sql.gz
+
 $MYSQLDUMP -h $MYSQL_CONTAINER_NAME -uroot -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE | $GZIP -9 > $FILE
 
 $LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
+
+cp $FILE $BACKUP_FOLDER/backup-$MYSQL_DATABASE.sql.gz
