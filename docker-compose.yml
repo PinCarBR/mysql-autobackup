@@ -7,6 +7,8 @@ services:
                 FREQUENCY: ${MYSQL_BKP_FREQUENCY}
         image: mysql-autobkp:latest
         container_name: mysql_autobackup
+        labels:
+            - traefik.enable=false
         env_file: .env
         volumes:
             - /etc/localtime:/etc/localtime:ro
