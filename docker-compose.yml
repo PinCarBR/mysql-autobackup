@@ -6,7 +6,7 @@ services:
             args:
                 FREQUENCY: ${MYSQL_BKP_FREQUENCY}
         image: mysql-autobkp:latest
-        container_name: mysql_autobackup
+        container_name: ${CONTAINER_NAME}
         labels:
             - traefik.enable=false
         env_file: .env
