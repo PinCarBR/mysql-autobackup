@@ -1,23 +1,34 @@
-#!/bin/sh
+#!/bin/bash
 
 BACKUP_FOLDER=/opt/mysql/backup
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
-MYSQLDUMP=$(which mysqldump)
+MYSQLSH=$(which mysqlsh)
 GZIP=$(which gzip)
+TAR=$(which tar)
 LS=$(which ls)
 GREP=$(which grep)
 TAIL=$(which tail)
 XARGS=$(which xargs)
 RM=$(which rm)
+CP=$(which cp)
 
 TAIL_SIZE=$(($MYSQL_BKP_HIST_SIZE+2))
 
 [ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
 
-FILE=$BACKUP_FOLDER/backup-$MYSQL_DATABASE-$NOW.sql.gz
+PREFIX=$MYSQL_BACKUP_PREFIX
 
-$MYSQLDUMP -h $MYSQL_CONTAINER_NAME -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE | $GZIP -9 > $FILE
+DEST=$BACKUP_FOLDER/$PREFIX
 
-$LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $GREP "backup-$MYSQL_DATABASE" |$TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
-cp $FILE $BACKUP_FOLDER/backup-$MYSQL_DATABASE.sql.gz
+LAST=$DEST-$NOW
+
+$MYSQLSH -h$MYSQL_CONTAINER_NAME -P3306 -u$MYSQL_USER -p$MYSQL_PASSWORD -- util dump-instance $LAST
+
+$TAR -zcvf $LAST.tar.gz -C $LAST .
+
+$RM -rf $LAST
+
+$LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $GREP $PREFIX | $TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
+
+$CP $LAST.tar.gz $DEST.tar.gz
