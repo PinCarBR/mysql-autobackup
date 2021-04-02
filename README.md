@@ -65,3 +65,10 @@ Check if everything is working via the commands:
 `docker-compose ps` or `docker ps`  
 Check the logs of each container via the command:  
 `docker-compose logs container_name`
+
+### To restore the backup
+
+1. Retrieve the latest backup
+2. Create a new directory to receive the extracted backup files: `mkdir /.../$MYSQL_BACKUP_PREFIX`
+3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz -C /.../$MYSQL_BACKUP_PREFIX`
+4. Execute the command `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /.../$MYSQL_BACKUP_PREFIX`
