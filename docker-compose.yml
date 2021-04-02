@@ -13,5 +13,6 @@ services:
         volumes:
             - /etc/localtime:/etc/localtime:ro
             - ${MYSQL_BACKUP_LOCATION}:/opt/mysql/backup
+            - db-datavolume:/var/lib/mysql
         command: crond -f -d 8
         restart: always
