@@ -23,8 +23,5 @@ RUN chmod a+x ${SCRIPTS_LOCATION}/* && \
     ln ${SCRIPTS_LOCATION}/backup-db /etc/cron.${FREQ_FULL_BACKUP}/backup-db && \
     ln -s ${SCRIPTS_LOCATION}/backup-binlog /bin/backup-binlog && \
     ln ${SCRIPTS_LOCATION}/backup-binlog /etc/cron.${FREQ_BINLOG_BACKUP}/backup-binlog
-    
 
-COPY ./entrypoint.sh /
-RUN chmod a+x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["cron", "-f"]
