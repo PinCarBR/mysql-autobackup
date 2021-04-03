@@ -17,7 +17,7 @@ RUN wget -qO /tmp/mysql-shell.deb ${MYSQLSH_PKG_URL} && \
     rm -rf /tmp/mysql-shell.deb
 
 RUN mkdir -p ${SCRIPTS_LOCATION}
-COPY ./scripts/* ${SCRIPTS_LOCATION}
+COPY ./scripts/* ${SCRIPTS_LOCATION}/
 RUN chmod a+x ${SCRIPTS_LOCATION}/* && \
     ln -s ${SCRIPTS_LOCATION}/backup-db /bin/backup-db && \
     ln ${SCRIPTS_LOCATION}/backup-db /etc/cron.${FREQ_FULL_BACKUP}/backup-db && \
