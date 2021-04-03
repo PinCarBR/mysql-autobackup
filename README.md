@@ -68,8 +68,31 @@ Check the logs of each container via the command:
 
 ### To restore the backup
 
+#### Full backup
+
 1. Retrieve the latest backup
-2. Create a new directory to receive the extracted backup files: `mkdir /.../$MYSQL_BACKUP_PREFIX`
-3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz -C /.../$MYSQL_BACKUP_PREFIX`
-4. Execute the command `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /.../$MYSQL_BACKUP_PREFIX`
-5. To restore the incremental changes: <https://dev.mysql.com/doc/refman/8.0/en/point-in-time-recovery-binlog.html>
+2. Create a new directory to receive the extracted backup files: `mkdir /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
+3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz -C /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
+4. Execute the command `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
+5. Restore incremental changes
+6. Flush the binary logs: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "FLUSH LOGS;"`
+7. Purge the binary logs: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "PURGE BINARY LOGS TO '$(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index' | tail -n 1)'"`
+8. Purge binlog backup files: `rm -f /opt/mysql/backup/binlog/*`
+
+#### Incremental changes
+
+1. Find the backup start time: `cat /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX/\@.json | jq -r '.begin'`
+2. On the MySQL server machine, get the first position:
+
+    ```shell
+    mysqlbinlog --start-datetime="2021-04-03 02:07:39" --verbose $(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index') | grep '# at' | tail -n +1 | head -1
+    ```
+
+3. Restore from the desired position:
+
+    ```shell
+    mysqlbinlog --start-position=4 $(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index') \
+    | mysql -uroot -p$MYSQL_PASSWORD
+    ```
+
+**Ref.:** <https://dev.mysql.com/doc/refman/8.0/en/point-in-time-recovery-binlog.html>
