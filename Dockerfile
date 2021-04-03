@@ -1,18 +1,22 @@
 FROM debian:10.9-slim
 ARG FREQUENCY=weekly
-ARG MYSQLSH_PKG=mysql-shell_8.0.23-1debian10_amd64.deb
-
-RUN mkdir /opt/bkp_scripts
-COPY ./scripts/* /opt/bkp_scripts
+ARG SCRIPTS_LOCATION=/opt/mysql/scripts
+ARG MYSQLSH_PKG_URL=https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell_8.0.23-1debian10_amd64.deb
 
 RUN set -ex && \
     apt-get update && \
     apt-get update && \
     apt-get install -y \
         wget \
-        gzip && \
-    wget -qO /tmp/${MYSQLSH_PKG} https://dev.mysql.com/get/Downloads/MySQL-Shell/${MYSQLSH_PKG} && \
-    dpkg -i /tmp/${MYSQLSH_PKG} || true && \
+        cron && \
+    wget -qO /tmp/mysql-shell.deb ${MYSQLSH_PKG_URL} && \
+    dpkg -i /tmp/mysql-shell.deb || true && \
     apt-get -f -y install && \
-    rm -rf /tmp/${MYSQLSH_PKG} && \
-    chmod a+x /opt/bkp_scripts/*
+    rm -rf /tmp/mysql-shell.deb
+
+RUN mkdir -p ${SCRIPTS_LOCATION}
+COPY ./scripts/* ${SCRIPTS_LOCATION}
+RUN chmod a+x ${SCRIPTS_LOCATION}/* && \
+    ln -s ${SCRIPTS_LOCATION}/backup-db /bin/backup-db && \
+    ln -s ${SCRIPTS_LOCATION}/backup-db /etc/cron.$FREQUENCY/backup-db
+    

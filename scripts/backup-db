@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_FOLDER=/opt/mysql/backup
+BACKUP_FOLDER=/opt/mysql/backup/full
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
 MYSQLSH=$(which mysqlsh)
