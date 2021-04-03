@@ -7,7 +7,8 @@ RUN set -ex && \
     apt-get update && \
     apt-get install -y \
         wget \
-        cron
+        cron \
+        rsync
 
 RUN wget -qO /tmp/mysql-shell.deb ${MYSQLSH_PKG_URL} && \
     dpkg -i /tmp/mysql-shell.deb || true && \
@@ -18,7 +19,9 @@ RUN mkdir -p ${SCRIPTS_LOCATION}
 COPY ./scripts/* ${SCRIPTS_LOCATION}
 RUN chmod a+x ${SCRIPTS_LOCATION}/* && \
     ln -s ${SCRIPTS_LOCATION}/backup-db /bin/backup-db && \
-    cp ${SCRIPTS_LOCATION}/backup-db /etc/cron.$FREQUENCY/backup-db
+    ln ${SCRIPTS_LOCATION}/backup-db /etc/cron.$FREQUENCY/backup-db && \
+    ln -s ${SCRIPTS_LOCATION}/backup-binlog /bin/backup-binlog && \
+    ln ${SCRIPTS_LOCATION}/backup-binlog /etc/cron.daily/backup-binlog
     
 
 COPY ./entrypoint.sh /

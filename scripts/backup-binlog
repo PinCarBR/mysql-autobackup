@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BACKUP_FOLDER=/opt/mysql/backup/binlog
+MYSQL_DATA_FOLDER=/var/lib/mysql
+
+LS=$(which ls)
+GREP=$(which grep)
+TAIL=$(which tail)
+XARGS=$(which xargs)
+RM=$(which rm)
+RSYNC=$(which rsync)
+
+[ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
+
+$RSYNC -av $MYSQL_DATA_FOLDER/$MYSQL_BINLOG_PREFIX* $BACKUP_FOLDER

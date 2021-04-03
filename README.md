@@ -70,5 +70,6 @@ Check the logs of each container via the command:
 
 1. Retrieve the latest backup
 2. Create a new directory to receive the extracted backup files: `mkdir /.../$MYSQL_BACKUP_PREFIX`
-3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz /.../$MYSQL_BACKUP_PREFIX`
+3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz -C /.../$MYSQL_BACKUP_PREFIX`
 4. Execute the command `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /.../$MYSQL_BACKUP_PREFIX`
+5. To restore the incremental changes: <https://dev.mysql.com/doc/refman/8.0/en/point-in-time-recovery-binlog.html>
