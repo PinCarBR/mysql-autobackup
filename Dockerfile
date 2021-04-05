@@ -9,7 +9,8 @@ RUN set -ex && \
     apt-get install -y \
         wget \
         cron \
-        rsync
+        rsync \
+        jq
 
 RUN wget -qO /tmp/mysql-shell.deb ${MYSQLSH_PKG_URL} && \
     dpkg -i /tmp/mysql-shell.deb || true && \
