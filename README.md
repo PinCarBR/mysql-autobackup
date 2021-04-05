@@ -79,12 +79,12 @@ Check the logs of each container via the command:
 
 1. Retrieve the latest backup
 2. Create a new directory to receive the extracted backup files: `mkdir /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
-3. Run `tar -xzf /.../$MYSQL_BACKUP_PREFIX.tar.gz -C /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
+3. Run `tar -xzf /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX.tar.gz -C /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
 4. Execute the command `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX`
 5. To restore a specific database: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util load-dump /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX --includeSchemas=mydatabase` (non-tested)
 6. Restore incremental changes
 7. Flush the binary logs: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "FLUSH LOGS;"`
-8. Purge the binary logs: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "PURGE BINARY LOGS TO '$(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index' | tail -n 1)'"`
+8. Purge the binary logs: `mysqlsh -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "PURGE BINARY LOGS TO '$(ls -Art /var/lib/mysql | grep binlog | grep -v '.index' | tail -n 1)'"`
 9. Purge binlog backup files: `rm -f /opt/mysql/backup/binlog/*`
 
 #### Incremental changes

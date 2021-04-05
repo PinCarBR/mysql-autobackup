@@ -1,0 +1,19 @@
+version: "3"
+services:
+    db_backup_restore:
+        build:
+            context: ./
+        image: mysql-autobkp:latest
+        container_name: db_backup_restore
+        labels:
+            - traefik.enabled=false
+        env_file: .env
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - ${MYSQL_BACKUP_LOCATION}:/opt/mysql/backup
+            - db-datavolume:/var/lib/mysql
+        restart: always
+        entrypoint: "/bin/bash"
+        stdin_open: true
+volumes:
+    db-datavolume:
