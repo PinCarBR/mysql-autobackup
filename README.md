@@ -53,8 +53,15 @@
 
 ### Configure environment variables
 
-1. If you want to change the backup frequency, just change the `FREQUENCY` parameter inside .env file
-2. The following options are available: `15min`, `hourly`, `daily`, `weekly` and `monthly`
+1. If you want to change the backup frequency, just add the arguments `FREQ_FULL_BACKUP` and `FREQ_BINLOG_BACKUP` on your build command or `docker-compose` file:
+
+    ```yml
+    args:
+                FREQ_FULL_BACKUP: ${MYSQL_BKP_FREQUENCY}
+                FREQ_BINLOG_BACKUP: 
+    ```
+
+2. The following options are available: `hourly`, `daily`, `weekly` and `monthly`
 3. If you have any issues to execute the backup due to `Authentication plugin 'caching_sha2_password' cannot be loaded` error, please run the following command on the MySQL database: `ALTER USER 'root' IDENTIFIED WITH mysql_native_password BY 'your_root_password';`
 4. The maximum historic size of backup files is given by the env variable `HIST_SIZE`, adjust it to your needs
 
@@ -85,13 +92,13 @@ Check the logs of each container via the command:
 2. On the MySQL server machine, get the first position:
 
     ```shell
-    mysqlbinlog --start-datetime="2021-04-03 02:07:39" --verbose $(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index') | grep '# at' | tail -n +1 | head -1
+    mysqlbinlog --start-datetime="2021-04-03 02:07:39" --verbose $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') | grep '# at' | tail -n +1 | head -1
     ```
 
 3. Restore from the desired position:
 
     ```shell
-    mysqlbinlog --start-position=4 $(ls -Art /opt/mysql/backup/binlog/ | grep -v '.index') \
+    mysqlbinlog --start-position=4 $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') \
     | mysql -uroot -p$MYSQL_PASSWORD
     ```
 

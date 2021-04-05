@@ -1,6 +1,6 @@
 FROM debian:10.9-slim
 ARG FREQ_FULL_BACKUP=weekly
-ARG FREQ_BINLOG_BACKUP=daily
+ARG FREQ_BINLOG_BACKUP=hourly
 ARG SCRIPTS_LOCATION=/opt/mysql/scripts
 ARG MYSQLSH_PKG_URL=https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell_8.0.23-1debian10_amd64.deb
 
