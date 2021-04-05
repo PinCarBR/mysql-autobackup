@@ -89,16 +89,26 @@ Check the logs of each container via the command:
 #### Incremental changes
 
 1. Find the backup start time: `cat /opt/mysql/backup/full/$MYSQL_BACKUP_PREFIX/\@.json | jq -r '.begin'`
-2. On the MySQL server machine, get the first position:
+2. Restore from the backup start-time. On the MySQL server machine:
 
     ```shell
-    mysqlbinlog --start-datetime="2021-04-03 02:07:39" --verbose $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') | grep '# at' | tail -n +1 | head -1
+    mysqlbinlog --start-datetime="2021-04-03 02:07:39" $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') \
+    | mysql -uroot -p$MYSQL_PASSWORD
     ```
 
-3. Restore from the desired position:
+##### Restore from a specific position
+
+1. To restore from the first position event. On the MySQL server machine, find the desired position:
 
     ```shell
-    mysqlbinlog --start-position=4 $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') \
+    mysqlbinlog --start-datetime="2021-04-03 02:07:39" --verbose $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') \
+    | grep '# at' | grep -v '# at 4' | tail -n +1 | head -1 | cut -c6-
+    ```
+
+2. Restore from the desired position:
+
+    ```shell
+    mysqlbinlog --start-position=21650298 $(ls -d -1 /opt/mysql/backup/binlog/* | grep -v '.index') \
     | mysql -uroot -p$MYSQL_PASSWORD
     ```
 
