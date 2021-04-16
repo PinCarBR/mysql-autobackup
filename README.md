@@ -65,6 +65,11 @@
 3. If you have any issues to execute the backup due to `Authentication plugin 'caching_sha2_password' cannot be loaded` error, please run the following command on the MySQL database: `ALTER USER 'root' IDENTIFIED WITH mysql_native_password BY 'your_root_password';`
 4. The maximum historic size of backup files is given by the env variable `HIST_SIZE`, adjust it to your needs
 
+### Configure server sync
+
+1. Create a file named `rclone.conf` inside the folder `rclone_config` in the repository with your storage provider configuration. Check the instructions at: <https://rclone.org/docs/#config-config-file>
+2. Add any file required to authenticate with your storage provider to the same file, e.g.: `key.json`
+
 ### Execute all the services
 
 `docker-compose up -d` or `docker-compose up -d --build --force-recreate` to force recreation of image and container  
