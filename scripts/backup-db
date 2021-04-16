@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_FOLDER=/opt/mysql/backup/full
+BACKUP_FOLDER=/tmp/mysql/backup/full
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
 MYSQLSH=$(which mysqlsh)
@@ -27,8 +27,12 @@ $MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util dum
 
 $TAR -zcvf $LAST.tar.gz -C $LAST .
 
+$CP $LAST.tar.gz $DEST.tar.gz
+
 $RM -rf $LAST
 
-$LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $GREP $PREFIX | $TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
+$RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/full/ --include $PREFIX*
 
-$CP $LAST.tar.gz $DEST.tar.gz
+$RM -rf $BACKUP_FOLDER
+
+# $LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $GREP $PREFIX | $TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
