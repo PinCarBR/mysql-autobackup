@@ -1,6 +1,5 @@
 #!/bin/bash
 
-BACKUP_FOLDER=/opt/mysql/backup/binlog
 MYSQL_DATA_FOLDER=/var/lib/mysql
 
 MYSQLSH=$(which mysqlsh)
@@ -9,10 +8,10 @@ GREP=$(which grep)
 TAIL=$(which tail)
 XARGS=$(which xargs)
 RM=$(which rm)
-RSYNC=$(which rsync)
+RCLONE=$(which rclone)
 
 [ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
 
-$RSYNC -av $MYSQL_DATA_FOLDER/$MYSQL_BINLOG_PREFIX* $BACKUP_FOLDER
+$RCLONE sync $MYSQL_DATA_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/binlog/ --include $MYSQL_BINLOG_PREFIX*
 
 $MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "FLUSH LOGS;"
