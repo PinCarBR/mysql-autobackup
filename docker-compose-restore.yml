@@ -10,7 +10,6 @@ services:
         env_file: .env
         volumes:
             - /etc/localtime:/etc/localtime:ro
-            - ${MYSQL_BACKUP_LOCATION}:/opt/mysql/backup
             - db-datavolume:/var/lib/mysql
         restart: always
         entrypoint: "/bin/bash"

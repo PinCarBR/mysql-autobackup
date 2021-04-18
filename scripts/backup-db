@@ -4,6 +4,7 @@ BACKUP_FOLDER=/tmp/mysql/backup/full
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
 MYSQLSH=$(which mysqlsh)
+RCLONE=$(which rclone)
 GZIP=$(which gzip)
 TAR=$(which tar)
 LS=$(which ls)
@@ -12,8 +13,9 @@ TAIL=$(which tail)
 XARGS=$(which xargs)
 RM=$(which rm)
 CP=$(which cp)
+SORT=$(which sort)
 
-TAIL_SIZE=$(($MYSQL_BACKUP_HIST_SIZE+2))
+TAIL_SIZE=$(($MYSQL_BACKUP_HIST_SIZE+1))
 
 [ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
 
@@ -33,6 +35,8 @@ $RM -rf $LAST
 
 $RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/full/ --include $PREFIX*
 
-$RM -rf $BACKUP_FOLDER
+$RCLONE lsf $REMOTE_NAME://$REMOTE_PATH/full/ --exclude $PREFIX.tar.gz | $GREP $PREFIX | $SORT -r | $TAIL -n +$TAIL_SIZE > $BACKUP_FOLDER/old_files
 
-# $LS -tp $BACKUP_FOLDER/ | $GREP -v '/$' | $GREP $PREFIX | $TAIL -n +$TAIL_SIZE | $XARGS -I {} $RM -- $BACKUP_FOLDER/{}
+$RCLONE delete $REMOTE_NAME://$REMOTE_PATH/full/ --include-from $BACKUP_FOLDER/old_files
+
+$RM -rf $BACKUP_FOLDER
