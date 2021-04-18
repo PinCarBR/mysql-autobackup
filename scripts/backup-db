@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_FOLDER=/tmp/mysql/backup/full
+BACKUP_FOLDER=/tmp/mysql/backup/$MYSQL_BACKUP_PREFIX
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
 MYSQLSH=$(which mysqlsh)
@@ -33,10 +33,10 @@ $CP $LAST.tar.gz $DEST.tar.gz
 
 $RM -rf $LAST
 
-$RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/full/ --include $PREFIX*
+$RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include $PREFIX*
 
-$RCLONE lsf $REMOTE_NAME://$REMOTE_PATH/full/ --exclude $PREFIX.tar.gz | $GREP $PREFIX | $SORT -r | $TAIL -n +$TAIL_SIZE > $BACKUP_FOLDER/old_files
+$RCLONE lsf $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --exclude $PREFIX.tar.gz | $GREP $PREFIX | $SORT -r | $TAIL -n +$TAIL_SIZE > $BACKUP_FOLDER/old_files
 
-$RCLONE delete $REMOTE_NAME://$REMOTE_PATH/full/ --include-from $BACKUP_FOLDER/old_files
+$RCLONE delete $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include-from $BACKUP_FOLDER/old_files
 
 $RM -rf $BACKUP_FOLDER
