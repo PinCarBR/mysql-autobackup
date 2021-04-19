@@ -1,5 +1,5 @@
 #!/bin/bash
 
-printenv | grep "MYSQL" > /etc/environment
+printenv | grep -e MYSQL -e REMOTE > /etc/environment
 
 cron -f
