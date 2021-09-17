@@ -10,6 +10,7 @@ services:
         env_file: .env
         volumes:
             - /etc/localtime:/etc/localtime:ro
+            - /var/log/mysql-autobackup:/var/log/mysql-autobackup
             - db-datavolume:/var/lib/mysql
         restart: always
 volumes:

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 BACKUP_FOLDER=/tmp/mysql/backup/$MYSQL_BACKUP_PREFIX
+LOG_FOLDER="/var/log/mysql-autobackup"
+LOG_FILE="$LOG_FOLDER/backup-db.log"
 NOW=$(date +'%Y-%m-%dT%H%M%SZ')
 
 MYSQLSH=$(which mysqlsh)
@@ -17,7 +19,11 @@ SORT=$(which sort)
 
 TAIL_SIZE=$(($MYSQL_BACKUP_HIST_SIZE+1))
 
-[ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
+echo "======" >> $LOG_FILE
+date -u +'%Y-%m-%d %H:%M:%S,000 - backup_db - INFO - Starting MYSQL db backup function...' >> $LOG_FILE
+
+[ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER >> $LOG_FILE 2>&1
+[ ! -d $LOG_FOLDER ] && $MKDIR -p $LOG_FOLDER >> $LOG_FILE 2>&1
 
 PREFIX=$MYSQL_BACKUP_PREFIX
 
@@ -25,18 +31,21 @@ DEST=$BACKUP_FOLDER/$PREFIX
 
 LAST=$DEST-$NOW
 
-$MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util dump-instance $LAST
+$MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD -- util dump-instance $LAST >> $LOG_FILE 2>&1
 
-$TAR -zcvf $LAST.tar.gz -C $LAST .
+$TAR -zcvf $LAST.tar.gz -C $LAST . >> $LOG_FILE 2>&1
 
-$CP $LAST.tar.gz $DEST.tar.gz
+$CP $LAST.tar.gz $DEST.tar.gz >> $LOG_FILE 2>&1
 
-$RM -rf $LAST
+$RM -rf $LAST >> $LOG_FILE 2>&1
 
-$RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include $PREFIX*
+$RCLONE copy $BACKUP_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include $PREFIX* >> $LOG_FILE 2>&1
 
-$RCLONE lsf $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --exclude $PREFIX.tar.gz | $GREP $PREFIX | $SORT -r | $TAIL -n +$TAIL_SIZE > $BACKUP_FOLDER/old_files
+"$RCLONE lsf $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --exclude $PREFIX.tar.gz | $GREP $PREFIX | $SORT -r | $TAIL -n +$TAIL_SIZE > $BACKUP_FOLDER/old_files" >> $LOG_FILE 2>&1
 
-$RCLONE delete $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include-from $BACKUP_FOLDER/old_files
+$RCLONE delete $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BACKUP_PREFIX/ --include-from $BACKUP_FOLDER/old_files >> $LOG_FILE 2>&1
 
-$RM -rf $BACKUP_FOLDER
+$RM -rf $BACKUP_FOLDER >> $LOG_FILE 2>&1
+
+date -u +'%Y-%m-%d %H:%M:%S,000 - backup_binlog - INFO - Finished MYSQL db backup function. Check log for execution details.' >> $LOG_FILE
+echo "======" >> $LOG_FILE

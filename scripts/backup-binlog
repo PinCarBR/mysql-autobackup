@@ -1,6 +1,8 @@
 #!/bin/bash
 
 MYSQL_DATA_FOLDER=/var/lib/mysql
+LOG_FOLDER="/var/log/mysql-autobackup"
+LOG_FILE="$LOG_FOLDER/backup-binlog.log"
 
 MYSQLSH=$(which mysqlsh)
 LS=$(which ls)
@@ -10,8 +12,14 @@ XARGS=$(which xargs)
 RM=$(which rm)
 RCLONE=$(which rclone)
 
-[ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER
+echo "======" >> $LOG_FILE
+date -u +'%Y-%m-%d %H:%M:%S,000 - backup_binlog - INFO - Starting MYSQL binlog backup function...' >> $LOG_FILE
 
-$RCLONE sync $MYSQL_DATA_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BINLOG_PREFIX/ --include $MYSQL_BINLOG_PREFIX*
+[ ! -d $BACKUP_FOLDER ] && mkdir --parents $BACKUP_FOLDER >> $LOG_FILE 2>&1
+[ ! -d $LOG_FOLDER ] && $MKDIR -p $LOG_FOLDER >> $LOG_FILE 2>&1
 
-$MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "FLUSH LOGS;"
+$RCLONE sync $MYSQL_DATA_FOLDER/ $REMOTE_NAME://$REMOTE_PATH/$MYSQL_BINLOG_PREFIX/ --include $MYSQL_BINLOG_PREFIX* >> $LOG_FILE 2>&1
+
+$MYSQLSH -h$MYSQL_HOST -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_PASSWORD --sql -e "FLUSH LOGS;" >> $LOG_FILE 2>&1
+date -u +'%Y-%m-%d %H:%M:%S,000 - backup_binlog - INFO - Finished MYSQL binlog backup function. Check log for execution details.' >> $LOG_FILE
+echo "======" >> $LOG_FILE
